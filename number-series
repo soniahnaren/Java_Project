@@ -1,0 +1,101 @@
+import java.util.*;
+public class UniqueNumbersMenu {
+
+    //DISARIUM
+    static boolean isDisarium(int num) {
+        int temp = num;
+        int len = String.valueOf(num).length();
+        int sum = 0;
+
+        while (temp > 0) {
+            int digit = temp % 10;
+            sum += Math.pow(digit, len);
+            len--;
+            temp /= 10;
+        }
+
+        return sum == num;
+    }
+
+    //FASCINATING
+    static boolean isFascinating(int num) {
+        String s = num + "" + (num * 2) + (num * 3);
+
+        if (s.length() != 9) return false;
+
+        for (char i = '1'; i <= '9'; i++) {
+            if (s.indexOf(i) == -1) return false;
+        }
+
+        return true;
+    }
+
+    //KEITH
+    static boolean isKeith(int num) {
+        String s = String.valueOf(num);
+        int n = s.length();
+
+        int[] arr = new int[20];
+        for (int i = 0; i < n; i++) {
+            arr[i] = s.charAt(i) - '0';
+        }
+
+        int next, i = n;
+
+        while (true) {
+            next = 0;
+            for (int j = i - n; j < i; j++) {
+                next += arr[j];
+            }
+
+            if (next == num) return true;
+            if (next > num) return false;
+
+            arr[i] = next;
+            i++;
+        }
+    }
+
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("Choose option:");
+        System.out.println("1. Disarium Number");
+        System.out.println("2. Fascinating Number");
+        System.out.println("3. Keith Number");
+
+        int choice = sc.nextInt();
+
+        System.out.print("Enter a number: ");
+        int num = sc.nextInt();
+
+        switch (choice) {
+            case 1:
+                if (isDisarium(num))
+                    System.out.println("Disarium Number");
+                else
+                    System.out.println("Not a Disarium Number");
+                break;
+
+            case 2:
+                if (isFascinating(num))
+                    System.out.println("Fascinating Number");
+                else
+                    System.out.println("Not a Fascinating Number");
+                break;
+
+            case 3:
+                if (isKeith(num))
+                    System.out.println("Keith Number");
+                else
+                    System.out.println("Not a Keith Number");
+                break;
+
+            default:
+                System.out.println("Invalid choice");
+        }
+
+        sc.close();
+    }
+}
