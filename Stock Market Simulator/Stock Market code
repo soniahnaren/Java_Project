@@ -1,0 +1,161 @@
+import java.util.*;
+
+class Stock {
+    String name;
+    double price;
+
+    Stock(String name, double price) {
+        this.name = name;
+        this.price = price;
+    }
+}
+
+class Portfolio {
+    Map<String, Integer> holdings = new HashMap<>();
+    double balance = 10000;
+
+    public void buy(Stock stock, int qty) {
+        double cost = stock.price * qty;
+
+        if (cost > balance) {
+            System.out.println("Not enough balance!");
+            return;
+        }
+
+        balance -= cost;
+        holdings.put(stock.name, holdings.getOrDefault(stock.name, 0) + qty);
+
+        System.out.println("Bought " + qty + " shares of " + stock.name);
+    }
+
+    public void sell(Stock stock, int qty) {
+        int owned = holdings.getOrDefault(stock.name, 0);
+
+        if (qty > owned) {
+            System.out.println("Not enough shares!");
+            return;
+        }
+
+        balance += stock.price * qty;
+        holdings.put(stock.name, owned - qty);
+
+        System.out.println("Sold " + qty + " shares of " + stock.name);
+    }
+
+    public void showPortfolio(Map<String, Stock> market) {
+        System.out.println("\n--- Portfolio ---");
+
+        double totalValue = balance;
+
+        for (String name : holdings.keySet()) {
+            int qty = holdings.get(name);
+            double value = market.get(name).price * qty;
+
+            System.out.println(name + " | Qty: " + qty + " | Value: ₹" + value);
+            totalValue += value;
+        }
+
+        System.out.println("Cash Balance: ₹" + balance);
+        System.out.println("Total Value: ₹" + totalValue);
+    }
+}
+
+public class StockMarketSimulator {
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        Random rand = new Random();
+
+        Map<String, Stock> market = new HashMap<>();
+        market.put("TCS", new Stock("TCS", 3500));
+        market.put("INFY", new Stock("INFY", 1500));
+        market.put("RELIANCE", new Stock("RELIANCE", 2500));
+
+        Portfolio portfolio = new Portfolio();
+
+        int choice;
+
+        do {
+            System.out.println("\n=== 📊 Stock Market Simulator ===");
+            System.out.println("1. View Market");
+            System.out.println("2. Buy Stock");
+            System.out.println("3. Sell Stock");
+            System.out.println("4. View Portfolio");
+            System.out.println("5. Next Day (Update Prices)");
+            System.out.println("6. Exit");
+            System.out.print("Enter choice: ");
+
+            while (!sc.hasNextInt()) {
+                System.out.println("Invalid input!");
+                sc.next();
+            }
+
+            choice = sc.nextInt();
+            sc.nextLine();
+
+            switch (choice) {
+
+                case 1:
+                    System.out.println("\n--- Market Prices ---");
+                    for (Stock s : market.values()) {
+                        System.out.println(s.name + " : ₹" + s.price);
+                    }
+                    break;
+
+                case 2:
+                    System.out.print("Enter stock name: ");
+                    String buyName = sc.nextLine().toUpperCase();
+
+                    if (!market.containsKey(buyName)) {
+                        System.out.println("Stock not found!");
+                        break;
+                    }
+
+                    System.out.print("Enter quantity: ");
+                    int buyQty = sc.nextInt();
+
+                    portfolio.buy(market.get(buyName), buyQty);
+                    break;
+
+                case 3:
+                    System.out.print("Enter stock name: ");
+                    String sellName = sc.nextLine().toUpperCase();
+
+                    if (!market.containsKey(sellName)) {
+                        System.out.println("Stock not found!");
+                        break;
+                    }
+
+                    System.out.print("Enter quantity: ");
+                    int sellQty = sc.nextInt();
+
+                    portfolio.sell(market.get(sellName), sellQty);
+                    break;
+
+                case 4:
+                    portfolio.showPortfolio(market);
+                    break;
+
+                case 5:
+                    System.out.println("\nUpdating prices...");
+                    for (Stock s : market.values()) {
+                        double change = (rand.nextDouble() - 0.5) * 0.1;
+                        s.price += s.price * change;
+                        s.price = Math.round(s.price * 100.0) / 100.0;
+                    }
+                    System.out.println("Prices updated!");
+                    break;
+
+                case 6:
+                    System.out.println("Exiting...");
+                    break;
+
+                default:
+                    System.out.println("Invalid choice!");
+            }
+
+        } while (choice != 6);
+
+        sc.close();
+    }
+}
