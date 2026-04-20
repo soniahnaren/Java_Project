@@ -1,0 +1,119 @@
+import java.util.*;
+
+public class AdvancedPlagiarismChecker {
+
+    public static String cleanText(String text) {
+        return text.toLowerCase().replaceAll("[^a-z0-9\\. ]", "").trim();
+    }
+
+    public static Set<String> getWords(String text) {
+        Set<String> words = new HashSet<>();
+        String[] arr = cleanText(text).split("\\s+");
+        for (String w : arr) {
+            if (!w.isEmpty()) words.add(w);
+        }
+        return words;
+    }
+
+    public static List<String> getSentences(String text) {
+        List<String> sentences = new ArrayList<>();
+        String[] arr = cleanText(text).split("\\.");
+        for (String s : arr) {
+            s = s.trim();
+            if (s.length() > 0) sentences.add(s);
+        }
+        return sentences;
+    }
+
+    public static double jaccard(Set<String> s1, Set<String> s2) {
+        if (s1.isEmpty() && s2.isEmpty()) return 0;
+
+        Set<String> intersection = new HashSet<>(s1);
+        intersection.retainAll(s2);
+
+        Set<String> union = new HashSet<>(s1);
+        union.addAll(s2);
+
+        return (double) intersection.size() / union.size();
+    }
+
+    public static Map<String, Integer> freq(String text) {
+        Map<String, Integer> map = new HashMap<>();
+        String[] words = cleanText(text).split("\\s+");
+
+        for (String w : words) {
+            if (!w.isEmpty())
+                map.put(w, map.getOrDefault(w, 0) + 1);
+        }
+        return map;
+    }
+
+    public static double cosine(String t1, String t2) {
+        Map<String, Integer> f1 = freq(t1);
+        Map<String, Integer> f2 = freq(t2);
+
+        Set<String> all = new HashSet<>();
+        all.addAll(f1.keySet());
+        all.addAll(f2.keySet());
+
+        double dot = 0, mag1 = 0, mag2 = 0;
+
+        for (String w : all) {
+            int v1 = f1.getOrDefault(w, 0);
+            int v2 = f2.getOrDefault(w, 0);
+
+            dot += v1 * v2;
+            mag1 += v1 * v1;
+            mag2 += v2 * v2;
+        }
+
+        if (mag1 == 0 || mag2 == 0) return 0;
+
+        return dot / (Math.sqrt(mag1) * Math.sqrt(mag2));
+    }
+
+    public static void sentenceMatch(String t1, String t2) {
+        List<String> s1 = getSentences(t1);
+        List<String> s2 = getSentences(t2);
+
+        System.out.println("\nMatching Sentences:");
+
+        boolean found = false;
+
+        for (String a : s1) {
+            for (String b : s2) {
+                if (a.equals(b) && a.length() > 5) {
+                    System.out.println("- " + a);
+                    found = true;
+                }
+            }
+        }
+
+        if (!found) System.out.println("No exact sentence matches.");
+    }
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("Enter Text 1:");
+        String t1 = sc.nextLine();
+
+        System.out.println("\nEnter Text 2:");
+        String t2 = sc.nextLine();
+
+        Set<String> w1 = getWords(t1);
+        Set<String> w2 = getWords(t2);
+
+        double jaccardScore = jaccard(w1, w2) * 100;
+        double cosineScore = cosine(t1, t2) * 100;
+
+        System.out.println("\n=== Results ===");
+        System.out.printf("Jaccard Similarity: %.2f%%\n", jaccardScore);
+        System.out.printf("Cosine Similarity: %.2f%%\n", cosineScore);
+
+        sentenceMatch(t1, t2);
+
+        sc.close();
+    }
+}
