@@ -1,0 +1,88 @@
+import java.util.*;
+
+public class SmartAIGuessGame {
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+        Random rand = new Random();
+
+        int level = 1;
+        int baseRange = 50;
+        int totalScore = 0;
+        int combo = 0;
+
+        System.out.println("=== 🤖 Smart AI Guessing Game ===");
+
+        while (true) {
+
+            int max = baseRange + (level * 20);
+            int number = rand.nextInt(max) + 1;
+            int attempts = 5 + level;
+            int score = 100 * level;
+            boolean guessed = false;
+
+            System.out.println("\nLevel " + level + " | Range: 1 - " + max);
+            System.out.println("Attempts: " + attempts);
+
+            for (int i = 1; i <= attempts; i++) {
+
+                System.out.print("Guess (" + i + "): ");
+
+                while (!sc.hasNextInt()) {
+                    System.out.println("Enter valid number!");
+                    sc.next();
+                }
+
+                int guess = sc.nextInt();
+                int diff = Math.abs(guess - number);
+
+                if (guess == number) {
+                    System.out.println("🎯 Correct!");
+
+                    combo++;
+                    int bonus = combo * 20;
+
+                    System.out.println("🔥 Combo x" + combo + " Bonus: +" + bonus);
+
+                    totalScore += score + bonus;
+                    guessed = true;
+                    break;
+                }
+
+                if (diff <= 3)
+                    System.out.println("🔥 VERY HOT!");
+                else if (diff <= 10)
+                    System.out.println("🌡️ Warm");
+                else
+                    System.out.println("❄️ Cold");
+
+                if (guess < number)
+                    System.out.println("📉 Go Higher");
+                else
+                    System.out.println("📈 Go Lower");
+
+                score -= 10;
+            }
+
+            if (!guessed) {
+                System.out.println("❌ Missed! Number was: " + number);
+                combo = 0;
+            }
+
+            System.out.println("🏆 Total Score: " + totalScore);
+
+            System.out.print("\nContinue to next level? (yes/no): ");
+            sc.nextLine();
+
+            if (!sc.nextLine().equalsIgnoreCase("yes")) {
+                break;
+            }
+
+            level++;
+        }
+
+        System.out.println("\n🎮 Final Score: " + totalScore);
+        sc.close();
+    }
+}
