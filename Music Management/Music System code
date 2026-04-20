@@ -1,0 +1,225 @@
+import java.util.*;
+
+class Song {
+    String title;
+    String artist;
+    boolean isFavorite;
+
+    Song(String title, String artist) {
+        this.title = title;
+        this.artist = artist;
+        this.isFavorite = false;
+    }
+
+    public String toString() {
+        return title + " - " + artist + (isFavorite ? " ❤️" : "");
+    }
+}
+
+class AdvancedPlaylistManager {
+
+    private List<Song> playlist = new ArrayList<>();
+    private List<Song> history = new ArrayList<>();
+    private int currentIndex = -1;
+    private String mode = "NORMAL";
+
+    public void addSong(String title, String artist) {
+        playlist.add(new Song(title, artist));
+        System.out.println("Song added!");
+    }
+
+    public void viewPlaylist() {
+        if (playlist.isEmpty()) {
+            System.out.println("Playlist is empty.");
+            return;
+        }
+
+        System.out.println("\n--- Playlist ---");
+        for (int i = 0; i < playlist.size(); i++) {
+            System.out.println((i + 1) + ". " + playlist.get(i));
+        }
+    }
+
+    public void search(String keyword) {
+        boolean found = false;
+
+        for (Song s : playlist) {
+            if (s.title.toLowerCase().contains(keyword.toLowerCase()) ||
+                s.artist.toLowerCase().contains(keyword.toLowerCase())) {
+                System.out.println("Found: " + s);
+                found = true;
+            }
+        }
+
+        if (!found) System.out.println("No results found.");
+    }
+
+    public void removeSong(String title) {
+        playlist.removeIf(s -> s.title.equalsIgnoreCase(title));
+        System.out.println("Song removed (if existed).");
+    }
+
+    public void markFavorite(String title) {
+        for (Song s : playlist) {
+            if (s.title.equalsIgnoreCase(title)) {
+                s.isFavorite = true;
+                System.out.println("Marked as favorite!");
+                return;
+            }
+        }
+        System.out.println("Song not found.");
+    }
+
+    public void showFavorites() {
+        System.out.println("\n--- Favorites ---");
+        for (Song s : playlist) {
+            if (s.isFavorite) System.out.println(s);
+        }
+    }
+
+    public void setMode(String newMode) {
+        mode = newMode.toUpperCase();
+        System.out.println("Mode set to: " + mode);
+    }
+
+    public void playCurrent() {
+        if (playlist.isEmpty()) {
+            System.out.println("Playlist empty.");
+            return;
+        }
+
+        if (currentIndex == -1) currentIndex = 0;
+
+        Song s = playlist.get(currentIndex);
+        history.add(s);
+
+        System.out.println("Now Playing: " + s);
+    }
+
+    public void next() {
+        if (playlist.isEmpty()) return;
+
+        if (mode.equals("SHUFFLE")) {
+            currentIndex = new Random().nextInt(playlist.size());
+        } else if (mode.equals("REPEAT")) {
+        } else {
+            currentIndex = (currentIndex + 1) % playlist.size();
+        }
+
+        playCurrent();
+    }
+
+    public void previous() {
+        if (playlist.isEmpty()) return;
+
+        currentIndex = (currentIndex - 1 + playlist.size()) % playlist.size();
+        playCurrent();
+    }
+
+    public void showHistory() {
+        System.out.println("\n--- Recently Played ---");
+        for (Song s : history) {
+            System.out.println(s);
+        }
+    }
+}
+
+public class AdvancedPlaylistApp {
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        AdvancedPlaylistManager manager = new AdvancedPlaylistManager();
+
+        int choice;
+
+        do {
+            System.out.println("\n=== 🎧 Advanced Playlist ===");
+            System.out.println("1. Add Song");
+            System.out.println("2. View Playlist");
+            System.out.println("3. Search");
+            System.out.println("4. Remove Song");
+            System.out.println("5. Mark Favorite");
+            System.out.println("6. Show Favorites");
+            System.out.println("7. Play Current");
+            System.out.println("8. Next Song");
+            System.out.println("9. Previous Song");
+            System.out.println("10. Set Mode (NORMAL/SHUFFLE/REPEAT)");
+            System.out.println("11. Show History");
+            System.out.println("12. Exit");
+            System.out.print("Enter choice: ");
+
+            while (!sc.hasNextInt()) {
+                System.out.println("Invalid input!");
+                sc.next();
+            }
+
+            choice = sc.nextInt();
+            sc.nextLine();
+
+            switch (choice) {
+
+                case 1:
+                    System.out.print("Enter title: ");
+                    String t = sc.nextLine();
+                    System.out.print("Enter artist: ");
+                    String a = sc.nextLine();
+                    manager.addSong(t, a);
+                    break;
+
+                case 2:
+                    manager.viewPlaylist();
+                    break;
+
+                case 3:
+                    System.out.print("Enter keyword: ");
+                    manager.search(sc.nextLine());
+                    break;
+
+                case 4:
+                    System.out.print("Enter title: ");
+                    manager.removeSong(sc.nextLine());
+                    break;
+
+                case 5:
+                    System.out.print("Enter title: ");
+                    manager.markFavorite(sc.nextLine());
+                    break;
+
+                case 6:
+                    manager.showFavorites();
+                    break;
+
+                case 7:
+                    manager.playCurrent();
+                    break;
+
+                case 8:
+                    manager.next();
+                    break;
+
+                case 9:
+                    manager.previous();
+                    break;
+
+                case 10:
+                    System.out.print("Enter mode: ");
+                    manager.setMode(sc.nextLine());
+                    break;
+
+                case 11:
+                    manager.showHistory();
+                    break;
+
+                case 12:
+                    System.out.println("Exiting...");
+                    break;
+
+                default:
+                    System.out.println("Invalid choice!");
+            }
+
+        } while (choice != 12);
+
+        sc.close();
+    }
+}
